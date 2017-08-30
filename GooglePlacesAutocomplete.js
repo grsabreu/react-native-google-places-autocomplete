@@ -210,7 +210,7 @@ const GooglePlacesAutocomplete = React.createClass({
       }
     });
 
-    return [...res, ...results];
+    return [...res, ...results].map((item, index) => ({...item, index}));
   },
 
   componentWillMount() {
@@ -224,6 +224,10 @@ const GooglePlacesAutocomplete = React.createClass({
       this.setState({
         listViewDisplayed: nextProps.listViewDisplayed,
       });
+    }
+
+    if (typeof nextProps.searchText === 'string' && nextProps.searchText !== this.props.searchText) {
+      this._handleChangeText(nextProps.searchText)
     }
   },
 
@@ -646,8 +650,7 @@ const GooglePlacesAutocomplete = React.createClass({
         style={[defaultStyles.separator, this.props.styles.separator]} />
     );
   },
-
-  _onBlur() {
+_onBlur() {
     this.triggerBlur();
     this.setState({
       listViewDisplayed: false
@@ -735,27 +738,30 @@ const GooglePlacesAutocomplete = React.createClass({
       <View
         style={[defaultStyles.container, this.props.styles.container]}
       >
-        <View
-          style={[defaultStyles.textInputContainer, this.props.styles.textInputContainer]}
-        >
-          {this._renderLeftButton()}
-          <TextInput
-            { ...userProps }
-            ref="textInput"
-            returnKeyType={this.props.returnKeyType}
-            autoFocus={this.props.autoFocus}
-            style={[defaultStyles.textInput, this.props.styles.textInput]}
-            onChangeText={this._handleChangeText}
-            value={this.state.text}
-            placeholder={this.props.placeholder}
+        { !this.props.showOnlyList ? (
+            <View
+              style={[defaultStyles.textInputContainer, this.props.styles.textInputContainer]}
+            >
+              {this._renderLeftButton()}
+              <TextInput
+                { ...userProps }
+                ref="textInput"
+                returnKeyType={this.props.returnKeyType}
+                autoFocus={this.props.autoFocus}
+                style={[defaultStyles.textInput, this.props.styles.textInput]}
+                onChangeText={this._handleChangeText}
+                value={this.state.text}
+                placeholder={this.props.placeholder}
 
-            placeholderTextColor={this.props.placeholderTextColor}
-            onFocus={onFocus ? () => {this._onFocus(); onFocus()} : this._onFocus}
-            clearButtonMode="while-editing"
-            underlineColorAndroid={this.props.underlineColorAndroid}
-          />
-          {this._renderRightButton()}
-        </View>
+                placeholderTextColor={this.props.placeholderTextColor}
+                onFocus={onFocus ? () => {this._onFocus(); onFocus()} : this._onFocus}
+                clearButtonMode="while-editing"
+                underlineColorAndroid={this.props.underlineColorAndroid}
+              />
+              {this._renderRightButton()}
+            </View>
+          ) : null
+        }
         {this._getListView()}
         {this.props.children}
       </View>
